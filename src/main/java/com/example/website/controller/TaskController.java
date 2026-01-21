@@ -3,6 +3,7 @@ package com.example.website.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.website.dto.TaskRequest;
@@ -20,31 +21,25 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    //  CREATE TASK for a specific user
-    @PostMapping("/{registrationId}")
-    public ResponseEntity<String> addTask(@PathVariable Long registrationId,
-                                          @RequestBody TaskRequest request) {
-        taskService.addNewTask(registrationId, request);
+    @PostMapping("")
+    public ResponseEntity<String> addTask(Authentication authentication, @RequestBody TaskRequest request) {
+        Long userId = (Long) authentication.getCredentials();
+        taskService.addNewTask(userId, request);
         return ResponseEntity.ok("Task added successfully");
     }
 
-    //  GET TASKS for a specific user
     @GetMapping("/{registrationId}")
-    public ResponseEntity<List<TaskResponse>> getTasksByUser(@PathVariable Long registrationId) {
-        return ResponseEntity.ok(taskService.getTasksByUser(registrationId));
+    public ResponseEntity<List<TaskResponse>> getTasksByUser(Authentication authentication) {
+        Long userId = (Long) authentication.getCredentials();
+        return ResponseEntity.ok(taskService.getTasksByUser(userId));
     }
-    
-    // Update Task
-    
+
+
     @PutMapping("/{taskId}")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId,
-                                                   @RequestBody TaskRequest request) {
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId, @RequestBody TaskRequest request) {
         return ResponseEntity.ok(taskService.updateTask(taskId, request));
     }
 
-    
-    // Delete Task 
-    
     @DeleteMapping("/{taskId}")
     public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
     	taskService.deleteTask(taskId);

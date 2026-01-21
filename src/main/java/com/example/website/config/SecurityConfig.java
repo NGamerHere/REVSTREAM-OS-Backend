@@ -1,6 +1,6 @@
 package com.example.website.config;
 
-import com.example.website.jwt.JwtAuthFilter;
+import com.example.website.filters.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

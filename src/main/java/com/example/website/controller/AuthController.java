@@ -2,7 +2,9 @@ package com.example.website.controller;
 
 import com.example.website.dto.LoginRequest;
 import com.example.website.dto.LoginResponse;
+import com.example.website.entity.Registration;
 import com.example.website.jwt.JwtUtil;
+import com.example.website.repository.RegistrationRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +16,12 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RegistrationRepository registrationRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,RegistrationRepository registrationRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.registrationRepository = registrationRepository;
     }
 
     @PostMapping("/login")
@@ -30,7 +34,9 @@ public class AuthController {
                 )
         );
 
-        String token = jwtUtil.generateToken(request.getCompanyEmail());
+        Registration user = registrationRepository.findByCompanyEmail(request.getCompanyEmail()).orElseThrow();
+        Long userId = user.getId();
+        String token = jwtUtil.generateToken(userId, request.getCompanyEmail());
 
         return new LoginResponse(token, "Login successful");
     }
