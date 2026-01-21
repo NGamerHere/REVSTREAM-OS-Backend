@@ -17,7 +17,7 @@ public class Address {
     private String pinCode;
     private String country;
 
-    // ✅ link with Registration table
+    //  link with Registration table
     @OneToOne
     @JoinColumn(name = "registration_id", nullable = false)
     private Registration registration;

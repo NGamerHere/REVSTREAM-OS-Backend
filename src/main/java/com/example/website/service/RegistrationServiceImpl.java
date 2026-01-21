@@ -1,7 +1,6 @@
 package com.example.website.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.website.dto.RegistrationRequest;
@@ -12,13 +11,20 @@ import com.example.website.repository.RegistrationRepository;
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
-    @Autowired
-    private RegistrationRepository repository;
+    private final RegistrationRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    public RegistrationServiceImpl(RegistrationRepository repository, PasswordEncoder passwordEncoder) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public RegistrationResponse register(RegistrationRequest request) {
+
+        if (request.getPassword() == null || request.getConfirmPassword() == null) {
+            return new RegistrationResponse(null, "Password and Confirm Password required");
+        }
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             return new RegistrationResponse(null, "Passwords do not match");
@@ -33,7 +39,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         reg.setCompanyEmail(request.getCompanyEmail());
         reg.setCompanySize(request.getCompanySize());
         reg.setPrimaryStack(request.getPrimaryStack());
-        reg.setPassword(encoder.encode(request.getPassword()));
+
+        reg.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Registration saved = repository.save(reg);
 

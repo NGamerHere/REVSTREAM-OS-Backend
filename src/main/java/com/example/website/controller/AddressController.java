@@ -17,7 +17,7 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    // ✅ Step-2 API
+    //  Step-2 API
     @PostMapping("/{registrationId}")
     public ResponseEntity<String> saveAddress(@PathVariable Long registrationId,
                                               @RequestBody AddressRequest request) {

@@ -13,8 +13,8 @@ public class TaskRequest {
     private List<String> attachments;
     private String note;
 
-    private double price;          // ✅ frontend uses price
-    private List<String> skills;   // ✅ frontend uses skills array
+    private double price;          
+    private List<String> skills;   
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

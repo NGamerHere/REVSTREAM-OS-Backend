@@ -18,12 +18,12 @@ public class Task {
     @Column(length = 1000)
     private String description;
 
-    private double price;  // ✅ frontend uses price
+    private double price;
 
     @ElementCollection
     private List<String> skills;
 
-    private String urgency; // HIGH, MEDIUM, LOW
+    private String urgency;
 
     private LocalDate dueDate;
 
@@ -34,7 +34,14 @@ public class Task {
     @ElementCollection
     private List<String> attachments;
 
-    // ✅ Getters & Setters
+    // Link Task with Registration (User)
+    @ManyToOne
+    @JoinColumn(name = "registration_id", nullable = false)
+    private Registration registration;
+    
+    
+
+    // Getters & Setters
 
     public Long getId() {
         return id;
@@ -114,5 +121,13 @@ public class Task {
 
     public void setAttachments(List<String> attachments) {
         this.attachments = attachments;
+    }
+
+    public Registration getRegistration() {
+        return registration;
+    }
+
+    public void setRegistration(Registration registration) {
+        this.registration = registration;
     }
 }

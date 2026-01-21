@@ -1,31 +1,37 @@
 package com.example.website.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.example.website.dto.LoginRequest;
-import com.example.website.service.AuthService;
+import com.example.website.dto.LoginResponse;
+import com.example.website.jwt.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@RequestBody LoginRequest request) {
 
-        String result = authService.login(request);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getCompanyEmail(),
+                        request.getPassword()
+                )
+        );
 
-        if ("Login successful".equals(result)) {
-            return ResponseEntity.ok(result); // ✅ 200 OK
-        } else {
-            return ResponseEntity.status(401).body(result); // ✅ 401 Unauthorized
-        }
+        String token = jwtUtil.generateToken(request.getCompanyEmail());
+
+        return new LoginResponse(token, "Login successful");
     }
 }

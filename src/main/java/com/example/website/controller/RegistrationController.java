@@ -19,5 +19,6 @@ public class RegistrationController {
     public RegistrationResponse register(@RequestBody RegistrationRequest request) {
         return service.register(request);
     }
-
+    
+    
 }
