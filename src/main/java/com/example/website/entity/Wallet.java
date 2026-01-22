@@ -1,5 +1,6 @@
 package com.example.website.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ public class Wallet {
 
     @OneToOne
     @JoinColumn(name = "registration_id")
+    @JsonIgnore
     private Registration registration;
 
     private Double balance = 0.0;

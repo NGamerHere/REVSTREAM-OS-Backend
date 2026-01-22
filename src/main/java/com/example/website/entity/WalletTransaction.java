@@ -1,6 +1,7 @@
 package com.example.website.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class WalletTransaction {
     private String status; // SUCCESS, FAILED, PENDING
 
     @ManyToOne
+    @JsonIgnore
     private Wallet wallet;
 
     @Column(updatable = false)

@@ -136,8 +136,11 @@ public class WalletService {
 
     public void withdrawMoneyRequest(Wallet wallet, Double amount){
         wallet.setPendingWithdrawn(wallet.getPendingWithdrawn()+amount);
+        wallet.setBalance(wallet.getBalance()-amount);
+        walletRepository.save(wallet);
 
         WalletTransaction transaction=new WalletTransaction();
+        transaction.setWallet(wallet);
         transaction.setStatus("PENDING");
         transaction.setType("WITHDRAW");
         transaction.setAmount(amount);
