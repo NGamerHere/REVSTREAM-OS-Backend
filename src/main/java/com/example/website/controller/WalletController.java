@@ -2,6 +2,8 @@ package com.example.website.controller;
 
 import com.example.website.dto.NewOrder;
 import com.example.website.dto.VerifyPayment;
+import com.example.website.entity.Registration;
+import com.example.website.entity.Wallet;
 import com.example.website.service.WalletService;
 import com.razorpay.Order;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +56,28 @@ public class WalletController {
         return ResponseEntity.ok(Map.of("message","ok"));
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<?> withDrawMoney(
+            Authentication authentication,
+            @RequestBody Map<?,?> body
+    ){
+        Long userId = (Long) authentication.getCredentials();
+        Wallet wallet =walletService.getWallet(userId);
+        if (wallet == null){
+            return ResponseEntity.notFound().build();
+        }
+        Double amount= (Double) body.get("amount");
 
+        if(!body.containsKey("amount")){
+            return ResponseEntity.badRequest().body(Map.of("message","invalid amount"));
+        }
+
+        if(amount > wallet.getBalance()){
+            return ResponseEntity.badRequest().body(Map.of("message","insufficient balance"));
+        }
+
+        walletService.withdrawMoneyRequest(wallet, amount);
+        return ResponseEntity.ok(body);
+    }
 
 }

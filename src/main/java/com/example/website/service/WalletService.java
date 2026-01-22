@@ -134,85 +134,29 @@ public class WalletService {
         }
     }
 
+    public void withdrawMoneyRequest(Wallet wallet, Double amount){
+        wallet.setPendingWithdrawn(wallet.getPendingWithdrawn()+amount);
 
-    public void lockMoney(Long registrationId, Double amount) {
+        WalletTransaction transaction=new WalletTransaction();
+        transaction.setStatus("PENDING");
+        transaction.setType("WITHDRAW");
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
+    }
 
-        Wallet wallet = getWallet(registrationId);
-
-        if (wallet.getBalance() < amount) {
-            throw new RuntimeException("Insufficient wallet balance");
+    public void withdrawStatusUpdate(Long transactionId,String status){
+        Optional<WalletTransaction> opTransaction = transactionRepository.findById(transactionId);
+        if (opTransaction.isEmpty()){
+            return;
         }
-
-        wallet.setBalance(wallet.getBalance() - amount);
-        wallet.setLockedBalance(wallet.getLockedBalance() + amount);
-        walletRepository.save(wallet);
-
-        saveTransaction(wallet, "LOCK", amount, null, "SUCCESS");
+        WalletTransaction transaction=opTransaction.get();
+        transaction.setStatus(status);
+        transactionRepository.save(transaction);
     }
 
 
-    public void releaseMoney(
-            Long payerRegistrationId,
-            Long receiverRegistrationId,
-            Double amount
-    ) {
-
-        Wallet payerWallet = getWallet(payerRegistrationId);
-        Wallet receiverWallet = getWallet(receiverRegistrationId);
-
-        if (payerWallet.getLockedBalance() < amount) {
-            throw new RuntimeException("Insufficient locked balance");
-        }
-
-        payerWallet.setLockedBalance(
-                payerWallet.getLockedBalance() - amount
-        );
-        receiverWallet.setBalance(
-                receiverWallet.getBalance() + amount
-        );
-
-        walletRepository.save(payerWallet);
-        walletRepository.save(receiverWallet);
-
-        saveTransaction(payerWallet, "RELEASE", amount, null, "SUCCESS");
-    }
-
-
-    public void refundLockedMoney(Long registrationId, Double amount) {
-
-        Wallet wallet = getWallet(registrationId);
-
-        if (wallet.getLockedBalance() < amount) {
-            throw new RuntimeException("No locked money to refund");
-        }
-
-        wallet.setLockedBalance(wallet.getLockedBalance() - amount);
-        wallet.setBalance(wallet.getBalance() + amount);
-        walletRepository.save(wallet);
-
-        saveTransaction(wallet, "REFUND", amount, null, "SUCCESS");
-    }
-
-
-    private Wallet getWallet(Long registrationId) {
+    public Wallet getWallet(Long registrationId) {
         return walletRepository.findByRegistrationId(registrationId)
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
-    }
-
-    private void saveTransaction(
-            Wallet wallet,
-            String type,
-            Double amount,
-            String razorpayPaymentId,
-            String status
-    ) {
-        WalletTransaction tx = new WalletTransaction();
-        tx.setWallet(wallet);
-        tx.setType(type);
-        tx.setAmount(amount);
-        tx.setRazorpayPaymentId(razorpayPaymentId);
-        tx.setStatus(status);
-
-        transactionRepository.save(tx);
     }
 }
